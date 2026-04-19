@@ -2,26 +2,41 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// Middleware
+app.use(cors()); // allow all origins
 app.use(express.json());
 
-// Test route
-app.get("/", (req, res) => {
-    res.send("Backend is running 🚀");
-});
+// In-memory database
+let users = [
+    { name: "Test User", skill: "Demo", location: "India" }
+];
 
-// Dummy users API
+// ✅ GET all users
 app.get("/users", (req, res) => {
-    res.json([
-        { name: "Test User", skill: "Demo", location: "India" }
-    ]);
+    res.json(users);
 });
 
-// Dummy add user
+// ✅ ADD new user
 app.post("/add-user", (req, res) => {
-    res.json({ message: "User added (dummy)" });
+    const newUser = req.body;
+
+    // basic validation (optional but good)
+    if (!newUser.name || !newUser.skill || !newUser.location) {
+        return res.status(400).json({ message: "Missing fields" });
+    }
+
+    users.push(newUser);
+
+    res.json({
+        message: "User added successfully",
+        user: newUser
+    });
 });
 
-app.listen(process.env.PORT || 5000, () => {
-    console.log("Server running...");
+// ✅ PORT FIX (important for Render)
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
